@@ -1,0 +1,11 @@
+services:
+  - name: minecraft-afk-bot
+    ports:
+      - port: 3000
+        http_path: /
+    env:
+      - name: NODE_ENV
+        value: production
+    docker:
+      image: koyeb/app
+      command: ["node", "index.js"]
