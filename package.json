@@ -1,16 +1,21 @@
 {
   "name": "minecraft-afk-bot",
   "version": "1.0.0",
-  "description": "AFK Bot for cwresports.lk Minecraft server",
-  "main": "bot.js",
+  "description": "AFK Bot for cracked Minecraft servers",
+  "main": "index.js",
   "scripts": {
-    "start": "node bot.js",
-    "test": "echo \"Error: no tests specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "mineflayer": "^4.8.0",
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "canvas": "^2.11.2"
+    "prismarine-viewer": "^1.26.0",
+    "vec3": "^0.1.7",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
