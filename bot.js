@@ -12,7 +12,7 @@ const config = {
   username: 'Waluka_Me',
   password: 'waluka',
   host: 'mc.cwresports.lk',
-  version: '1.8.9'
+  version: '1.20.4'
 }
 
 // Create bot
@@ -21,7 +21,7 @@ const bot = mineflayer.createBot({
   password: config.password,
   host: config.host,
   version: config.version,
-  auth: 'mojang'
+  auth: 'offline'
 })
 
 let isAfk = true
