@@ -1,19 +1,21 @@
 FROM node:18-alpine
 
-# Install system dependencies
-RUN apk add --no-cache \
-    python3 \
+WORKDIR /app
+
+# canvas dependencies ස්ථාපනය කරන්න
+RUN apk add --update --no-cache \
     make \
     g++ \
-    cairo-dev \
     jpeg-dev \
-    pango-dev \
-    giflib-dev
+    cairo-dev \
+    giflib-dev \
+    pango-dev
 
-WORKDIR /app
 COPY package*.json ./
 RUN npm install
+
 COPY . .
 
 EXPOSE 3000
+
 CMD ["node", "bot.js"]
