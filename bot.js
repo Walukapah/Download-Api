@@ -1,7 +1,7 @@
 const mineflayer = require('mineflayer')
 const express = require('express')
 const socketIO = require('socket.io')
-const { mineflayer: viewer } = require('prismarine-viewer')
+//const { mineflayer: viewer } = require('prismarine-viewer')
 
 const app = express()
 const server = require('http').createServer(app)
