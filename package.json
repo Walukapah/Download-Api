@@ -13,7 +13,8 @@
     "socket.io": "^4.7.2",
     "prismarine-viewer": "^1.26.0",
     "vec3": "^0.1.7",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "canvas": "^2.11.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
