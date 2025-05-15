@@ -12,7 +12,7 @@ const config = {
   username: 'Waluka_Me',
   password: 'waluka',
   host: 'mc.cwresports.lk',
-  version: '1.20.4'
+  version: '1.8.9'
 }
 
 // Create bot
