@@ -1,96 +1,92 @@
-const mineflayer = require('mineflayer')
-const express = require('express')
-const socketIO = require('socket.io')
-//const { mineflayer: viewer } = require('prismarine-viewer')
+const mineflayer = require('mineflayer');
+const express = require('express');
 
-const app = express()
-const server = require('http').createServer(app)
-const io = socketIO(server)
+const app = express();
+const server = require('http').createServer(app);
 
-// Configuration
+// Server configuration
 const config = {
-  username: 'Waluka_Me',
-  password: 'waluka',
+  username: 'Waluka_Me', // ඔබේ Minecraft username එක
   host: 'mc.cwresports.lk',
-  version: '1.20.4'
-}
-
-// Create bot
-const bot = mineflayer.createBot({
-  username: config.username,
-  password: config.password,
-  host: config.host,
-  version: config.version,
+  version: '1.20.4',
   auth: 'offline'
-})
+};
 
-let isAfk = true
-let movementInterval
+// Create bot instance
+const bot = mineflayer.createBot(config);
+
+let isAfk = true;
 
 // Bot events
 bot.on('login', () => {
-  console.log('Logged in!')
-  bot.chat('/server skyblock')
+  console.log('Successfully connected to server!');
   
-  // Start periodic movement
-  movementInterval = setInterval(() => {
-    if (isAfk) {
-      bot.setControlState('forward', true)
-      setTimeout(() => {
-        bot.setControlState('forward', false)
-        bot.look(bot.entity.yaw + 0.1, bot.entity.pitch)
-      }, 100)
-    }
-  }, 60000) // Move every minute
-})
+  // Login to server with password
+  setTimeout(() => {
+    bot.chat('/login waluka'); // ඔබේ password එක මෙතන යොදන්න
+    console.log('Attempting to login with password...');
+    
+    // Join skyblock after login
+    setTimeout(() => {
+      bot.chat('/server skyblock');
+      console.log('Joining Skyblock server...');
+    }, 3000);
+  }, 5000);
+});
 
+// AFK system
+bot.on('spawn', () => {
+  console.log('Bot spawned in world! Starting AFK system...');
+  
+  setInterval(() => {
+    if(isAfk) {
+      // Small movements to avoid AFK kick
+      bot.setControlState('jump', true);
+      setTimeout(() => {
+        bot.setControlState('jump', false);
+        bot.look(bot.entity.yaw + 0.1, bot.entity.pitch);
+      }, 100);
+    }
+  }, 60000); // Every 1 minute
+});
+
+// Error handling
 bot.on('kicked', (reason) => {
-  console.log('Kicked:', reason)
-  setTimeout(() => bot = mineflayer.createBot(config), 60000) // Reconnect after 1 minute
-})
+  console.log('Kicked from server:', reason);
+  console.log('Will attempt to reconnect in 60 seconds...');
+  setTimeout(() => {
+    console.log('Reconnecting...');
+    createBot();
+  }, 60000);
+});
 
 bot.on('error', (err) => {
-  console.log('Error:', err)
-  setTimeout(() => bot = mineflayer.createBot(config), 60000) // Reconnect after 1 minute
-})
+  console.log('Bot error:', err);
+  console.log('Reconnecting in 60 seconds...');
+  setTimeout(() => {
+    console.log('Reconnecting...');
+    createBot();
+  }, 60000);
+});
 
-bot.on('serverAuth', () => {
-  bot.chat('/login waluka')
-})
-
-// Web Interface
-app.use(express.static('public'))
-
+// Web interface
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html')
-})
+  res.send(`
+    <h1>Minecraft AFK Bot</h1>
+    <p>Status: <strong>${bot ? 'Connected' : 'Disconnected'}</strong></p>
+    <p>Username: ${config.username}</p>
+    <p>Server: ${config.host}</p>
+  `);
+});
 
-// Socket.IO for real-time updates
-io.on('connection', (socket) => {
-  console.log('Client connected')
-  
-  // Send initial bot status
-  socket.emit('status', {
-    username: bot.username,
-    position: bot.entity.position,
-    health: bot.health,
-    food: bot.food,
-    isAfk
-  })
-  
-  // Handle commands from UI
-  socket.on('command', (cmd) => {
-    if (cmd === 'toggle-afk') {
-      isAfk = !isAfk
-      io.emit('afk-status', isAfk)
-    } else if (cmd.startsWith('chat:')) {
-      const message = cmd.substring(5)
-      bot.chat(message)
-    }
-  })
-})
-
-
+// Start web server
 server.listen(3000, () => {
-  console.log('Web interface running on http://localhost:3000')
-})
+  console.log('Web interface running on port 3000');
+});
+
+// Helper function to recreate bot
+function createBot() {
+  const newBot = mineflayer.createBot(config);
+  // Transfer all event listeners to new bot
+  // ... (add event listeners same as above)
+}
