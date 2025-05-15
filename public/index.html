@@ -1,151 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft AFK Bot - Waluka_Me</title>
-    <style>
-        body {
-            font-family: 'Minecraft', Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .panel {
-            background-color: #2d2d2d;
-            border-radius: 5px;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        h1, h2 {
-            color: #55ff55;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 15px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #afk-status {
-            font-weight: bold;
-            color: #ff5555;
-        }
-        #afk-status.active {
-            color: #55ff55;
-        }
-        #minimap {
-            width: 100%;
-            height: 300px;
-            background-color: #1a1a1a;
-            border: 2px solid #555;
-        }
-        #chat-box {
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #555;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #1a1a1a;
-        }
-        #player-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        #player-list li {
-            padding: 5px;
-            border-bottom: 1px solid #555;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft AFK Bot Control</title>
+  <style>
+    body {
+      font-family: 'Minecraft', Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .panel {
+      background-color: #2d2d2d;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    h1, h2 {
+      color: #55ff55;
+      text-align: center;
+    }
+    .status {
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:active {
+      background-color: #3e8e41;
+    }
+    #stop {
+      background-color: #f44336;
+    }
+    #stop:hover {
+      background-color: #d32f2f;
+    }
+    #chat-input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #333;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 5px;
+    }
+    #messages {
+      height: 200px;
+      overflow-y: auto;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    #players {
+      list-style-type: none;
+      padding: 0;
+    }
+    #players li {
+      padding: 5px;
+      border-bottom: 1px solid #444;
+    }
+    #minimap {
+      width: 100%;
+      height: 300px;
+      background-color: #222;
+      border-radius: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+    #bot-marker {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .command-input {
+      display: flex;
+      margin-top: 10px;
+    }
+    #command-input {
+      flex-grow: 1;
+      padding: 10px;
+      background-color: #333;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 5px 0 0 5px;
+    }
+    #send-command {
+      border-radius: 0 5px 5px 0;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="panel">
-            <h1>Minecraft AFK Bot</h1>
-            <p>Username: <strong>Waluka_Me</strong></p>
-            <p>Server: <strong>mc.cwresports.lk</strong></p>
-            <p>Status: <span id="status">Connected</span></p>
-            <p>AFK Mode: <span id="afk-status">Active</span></p>
-            <button id="toggle-afk">Toggle AFK</button>
-            <hr>
-            <h2>Player Position</h2>
-            <p>X: <span id="pos-x">0</span></p>
-            <p>Y: <span id="pos-y">0</span></p>
-            <p>Z: <span id="pos-z">0</span></p>
-            <h2>Player Stats</h2>
-            <p>Health: <span id="health">20</span></p>
-            <p>Food: <span id="food">20</span></p>
-        </div>
-        
-        <div class="panel">
-            <h2>Mini Map</h2>
-            <div id="minimap"></div>
-            <h2>Player List</h2>
-            <ul id="player-list"></ul>
-        </div>
-        
-        <div class="panel" style="grid-column: span 2;">
-            <h2>Chat</h2>
-            <div id="chat-box"></div>
-            <input type="text" id="chat-input" placeholder="Type your message...">
-            <button id="send-chat">Send</button>
-        </div>
+  <h1>Minecraft AFK Bot Control Panel</h1>
+  <div class="container">
+    <div class="panel">
+      <h2>Bot Status</h2>
+      <div class="status" id="status">Connecting...</div>
+      
+      <h2>Movement Controls</h2>
+      <div class="controls">
+        <button id="forward">↑ Forward</button>
+        <button id="back">↓ Back</button>
+        <button id="left">← Left</button>
+        <button id="right">→ Right</button>
+        <button id="jump">Jump</button>
+        <button id="stop">STOP</button>
+      </div>
+      
+      <h2>Chat</h2>
+      <input type="text" id="chat-input" placeholder="Type message...">
+      <button id="send-chat">Send</button>
+      
+      <h2>Server Messages</h2>
+      <div id="messages"></div>
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        
-        // Update status
-        socket.on('status', (data) => {
-            document.getElementById('pos-x').textContent = data.position.x.toFixed(2);
-            document.getElementById('pos-y').textContent = data.position.y.toFixed(2);
-            document.getElementById('pos-z').textContent = data.position.z.toFixed(2);
-            document.getElementById('health').textContent = data.health;
-            document.getElementById('food').textContent = data.food;
-            
-            const afkStatus = document.getElementById('afk-status');
-            afkStatus.textContent = data.isAfk ? 'Active' : 'Inactive';
-            afkStatus.className = data.isAfk ? 'active' : '';
-        });
-        
-        // Toggle AFK
-        document.getElementById('toggle-afk').addEventListener('click', () => {
-            socket.emit('command', 'toggle-afk');
-        });
-        
-        // Send chat message
-        document.getElementById('send-chat').addEventListener('click', () => {
-            const message = document.getElementById('chat-input').value;
-            if (message.trim()) {
-                socket.emit('command', 'chat:' + message);
-                document.getElementById('chat-input').value = '';
-            }
-        });
-        
-        // Handle Enter key in chat input
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('send-chat').click();
-            }
-        });
-    </script>
+    
+    <div class="panel">
+      <h2>Player List</h2>
+      <ul id="players"></ul>
+      
+      <h2>Bot Position</h2>
+      <div id="position">X: 0, Y: 0, Z: 0</div>
+      
+      <h2>Mini Map</h2>
+      <div id="minimap">
+        <div id="bot-marker"></div>
+      </div>
+      
+      <h2>Commands</h2>
+      <div class="command-input">
+        <input type="text" id="command-input" placeholder="Enter command...">
+        <button id="send-command">Send</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io()
+    const minimap = document.getElementById('minimap')
+    const botMarker = document.getElementById('bot-marker')
+    const scale = 5 // Pixels per block
+    
+    // Status updates
+    socket.on('status', (status) => {
+      document.getElementById('status').textContent = status
+    })
+    
+    // Messages from server
+    socket.on('message', (message) => {
+      const messagesDiv = document.getElementById('messages')
+      messagesDiv.innerHTML += `<div>${message}</div>`
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
+    })
+    
+    // Player list updates
+    socket.on('players', (players) => {
+      const playersList = document.getElementById('players')
+      playersList.innerHTML = players.map(player => `<li>${player}</li>`).join('')
+    })
+    
+    // Position updates
+    socket.on('position', (pos) => {
+      document.getElementById('position').textContent = 
+        `X: ${pos.x.toFixed(1)}, Y: ${pos.y.toFixed(1)}, Z: ${pos.z.toFixed(1)}`
+      
+      // Update minimap
+      const centerX = minimap.offsetWidth / 2
+      const centerZ = minimap.offsetHeight / 2
+      
+      botMarker.style.left = `${centerX + (pos.x * scale)}px`
+      botMarker.style.top = `${centerZ + (pos.z * scale)}px`
+      
+      // Rotate marker based on yaw
+      botMarker.style.transform = `translate(-50%, -50%) rotate(${pos.yaw}rad)`
+    })
+    
+    // Movement controls
+    document.getElementById('forward').addEventListener('mousedown', () => socket.emit('move', 'forward'))
+    document.getElementById('forward').addEventListener('mouseup', () => socket.emit('move', 'stop'))
+    document.getElementById('back').addEventListener('mousedown', () => socket.emit('move', 'back'))
+    document.getElementById('back').addEventListener('mouseup', () => socket.emit('move', 'stop'))
+    document.getElementById('left').addEventListener('mousedown', () => socket.emit('move', 'left'))
+    document.getElementById('left').addEventListener('mouseup', () => socket.emit('move', 'stop'))
+    document.getElementById('right').addEventListener('mousedown', () => socket.emit('move', 'right'))
+    document.getElementById('right').addEventListener('mouseup', () => socket.emit('move', 'stop'))
+    document.getElementById('jump').addEventListener('mousedown', () => socket.emit('move', 'jump'))
+    document.getElementById('jump').addEventListener('mouseup', () => socket.emit('move', 'stop'))
+    document.getElementById('stop').addEventListener('click', () => socket.emit('move', 'stop'))
+    
+    // Chat
+    document.getElementById('send-chat').addEventListener('click', () => {
+      const input = document.getElementById('chat-input')
+      if (input.value.trim()) {
+        socket.emit('chat', input.value)
+        input.value = ''
+      }
+    })
+    
+    // Commands
+    document.getElementById('send-command').addEventListener('click', () => {
+      const input = document.getElementById('command-input')
+      if (input.value.trim()) {
+        socket.emit('command', input.value)
+        input.value = ''
+      }
+    })
+    
+    // Allow Enter key for chat and commands
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('send-chat').click()
+    })
+    
+    document.getElementById('command-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('send-command').click()
+    })
+  </script>
 </body>
 </html>
