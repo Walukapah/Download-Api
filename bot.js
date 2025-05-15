@@ -90,10 +90,6 @@ io.on('connection', (socket) => {
   })
 })
 
-// Start viewer
-bot.once('spawn', () => {
-  viewer(bot, { port: 3000, firstPerson: true })
-})
 
 server.listen(3000, () => {
   console.log('Web interface running on http://localhost:3000')
